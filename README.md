@@ -1,2 +1,2 @@
 # PetDevOps
-PetProjectsForResumeDevOps
+Репозиторий с Pet-проектами для резюме. Мишенин Алексей.
