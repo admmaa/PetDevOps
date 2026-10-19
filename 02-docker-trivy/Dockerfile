@@ -10,6 +10,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o server main.go
 FROM scratch
 # Копируем приложение из предыдущего образа
 COPY --from=builder /app/server /server
+# Задаем непривелегерованного пользователя 65532 - nonroot user ID и GID
+USER 65532:65532
 # Декларируем порт для приложения  
 EXPOSE 8080
 # Запускаем наш бинарник

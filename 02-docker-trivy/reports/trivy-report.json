@@ -1,0 +1,98 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.76.0"
+  },
+  "ReportID": "01a153a8-006a-73b1-ae19-b1ca7a695a86",
+  "CreatedAt": "2026-10-19T13:14:41.514242+03:00",
+  "ArtifactID": "sha256:c44cddc7e52ff05736db16429ef4d11e3c32e7b0f55b5e94acf9d876b2f70991",
+  "ArtifactName": "petdevops-security:trivy",
+  "ArtifactType": "container_image",
+  "Metadata": {
+    "Size": 8606720,
+    "ImageID": "sha256:2bc74282ddb1004dc59ea827362b0aa68fe998d329e3dfa4577ea65b29d058e2",
+    "DiffIDs": [
+      "sha256:60108a6655f36e15bf7b49136c7d29e0b845bcb3a229eedbf5d0673656be8978"
+    ],
+    "RepoTags": [
+      "petdevops-security:trivy"
+    ],
+    "RepoDigests": [
+      "petdevops-security@sha256:2bc74282ddb1004dc59ea827362b0aa68fe998d329e3dfa4577ea65b29d058e2"
+    ],
+    "Reference": "petdevops-security:trivy",
+    "ImageConfig": {
+      "architecture": "amd64",
+      "created": "2026-10-16T12:45:09.84178952Z",
+      "history": [
+        {
+          "created": "2026-10-16T12:45:09Z",
+          "created_by": "COPY /app/server /server # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2026-10-16T12:45:09Z",
+          "created_by": "EXPOSE [8080/tcp]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2026-10-16T12:45:09Z",
+          "created_by": "ENTRYPOINT [\"/server\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        }
+      ],
+      "os": "linux",
+      "rootfs": {
+        "type": "layers",
+        "diff_ids": [
+          "sha256:60108a6655f36e15bf7b49136c7d29e0b845bcb3a229eedbf5d0673656be8978"
+        ]
+      },
+      "config": {
+        "Entrypoint": [
+          "/server"
+        ],
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        ],
+        "WorkingDir": "/",
+        "ExposedPorts": {
+          "8080/tcp": {}
+        }
+      }
+    },
+    "Layers": [
+      {
+        "Size": 8606720,
+        "Digest": "sha256:fcacbd87d32b32b4ec5e001e8ba06d08601bf5e655a37cafcc747886cf650a7a",
+        "DiffID": "sha256:60108a6655f36e15bf7b49136c7d29e0b845bcb3a229eedbf5d0673656be8978"
+      }
+    ]
+  },
+  "Results": [
+    {
+      "Target": "server",
+      "Class": "lang-pkgs",
+      "Type": "gobinary",
+      "Packages": [
+        {
+          "ID": "stdlib@v1.27.2",
+          "Name": "stdlib",
+          "Identifier": {
+            "PURL": "pkg:golang/stdlib@v1.27.2",
+            "UID": "bca608e24f640233"
+          },
+          "Version": "v1.27.2",
+          "Relationship": "direct",
+          "Layer": {
+            "Digest": "sha256:fcacbd87d32b32b4ec5e001e8ba06d08601bf5e655a37cafcc747886cf650a7a",
+            "DiffID": "sha256:60108a6655f36e15bf7b49136c7d29e0b845bcb3a229eedbf5d0673656be8978"
+          },
+          "AnalyzedBy": "gobinary"
+        }
+      ]
+    }
+  ]
+}
