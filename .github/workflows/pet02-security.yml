@@ -1,0 +1,75 @@
+name: 02-docker-trivy
+ 
+on:
+  push:
+    branches: [main]
+    paths: ["02-docker-trivy/**", ".github/workflows/02-docker-trivy.yml"] # запуск только при изменениях этого проекта
+  pull_request:
+    paths: ["02-docker-trivy/**", ".github/workflows/02-docker-trivy.yml"] # PR проверяем, но не публикуем
+  workflow_dispatch: # ручной запуск из вкладки Actions
+ 
+permissions:
+  contents: read  # читать код
+  packages: write # пушить образ в ghcr.io
+ 
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/pet02-security
+ 
+jobs:
+  ci-cd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, закреплено по SHA (защита от подмены тега)
+ 
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1, нужен для кэша сборки
+ 
+      # 1. Сборка в локальный docker (без публикации), чтобы просканировать
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: 02-docker-trivy
+          load: true
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+ 
+      # 2. Trivy: Dockerfile на ошибки конфигурации; HIGH/CRITICAL -> пайплайн падает
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: config
+          scan-ref: 02-docker-trivy
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          version: v0.76.0 # как локально
+ 
+      # 3. Trivy: образ на уязвимости; падаем только на исправимые HIGH/CRITICAL
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          skip-setup-trivy: true # Trivy уже установлен шагом 2
+          version: v0.76.0
+ 
+      # 4. SBOM (Syft) -> артефакт запуска
+      - uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          image: ${{ env.IMAGE }}:${{ github.sha }}
+          format: cyclonedx-json
+          artifact-name: sbom.cdx.json
+ 
+      # 5. CD: только push в main — логин и публикация в GHCR
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # встроенный токен, личный не нужен
+ 
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: 02-docker-trivy
+          push: true
+          tags: ${{ env.IMAGE }}:${{ github.sha }},${{ env.IMAGE }}:latest # sha — для отката, latest — свежая
+          cache-from: type=gha # слои из кэша шага 1 — тот же образ, что проверил Trivy
